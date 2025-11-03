@@ -10,10 +10,12 @@ import {
   Alert,
   Dimensions,
   Share,
+  Modal,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getTourById, getTours, Tour } from '../services/tourService';
+import { isAuthenticated } from '../services/authService';
 
 const { width } = Dimensions.get('window');
 
@@ -27,6 +29,7 @@ export default function TourDetailScreen() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [relatedTours, setRelatedTours] = useState<Tour[]>([]);
   const [loadingRelated, setLoadingRelated] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const additionalInfo = [
     { icon: '✈️', title: 'Phương tiện', content: 'Máy bay + Xe du lịch đời mới' },
@@ -94,6 +97,14 @@ export default function TourDetailScreen() {
 
   const handleBookNow = async () => {
     if (!tour) return;
+
+    // Kiểm tra xem người dùng đã đăng nhập chưa
+    const authenticated = await isAuthenticated();
+    
+    if (!authenticated) {
+      setShowLoginModal(true);
+      return;
+    }
 
     // Navigate to booking form
     router.push({
@@ -354,6 +365,52 @@ export default function TourDetailScreen() {
           <Text style={styles.bookButtonText}>Đặt ngay</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Login Required Modal */}
+      <Modal
+        visible={showLoginModal}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setShowLoginModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            {/* Icon */}
+            <View style={styles.modalIconContainer}>
+              <Text style={styles.modalIcon}>🔒</Text>
+            </View>
+
+            {/* Title */}
+            <Text style={styles.modalTitle}>Yêu cầu đăng nhập</Text>
+            
+            {/* Message */}
+            <Text style={styles.modalMessage}>
+              Bạn phải đăng nhập mới đặt tour được.{'\n'}
+              Vui lòng đăng nhập để tiếp tục.
+            </Text>
+
+            {/* Buttons */}
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonSecondary]}
+                onPress={() => setShowLoginModal(false)}
+              >
+                <Text style={styles.modalButtonTextSecondary}>Để sau</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonPrimary]}
+                onPress={() => {
+                  setShowLoginModal(false);
+                  router.push('/login');
+                }}
+              >
+                <Text style={styles.modalButtonTextPrimary}>Đăng nhập</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -832,5 +889,88 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  // Login Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 30,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#FFF3E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalIcon: {
+    fontSize: 40,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalMessage: {
+    fontSize: 15,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 30,
+    lineHeight: 22,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    width: '100%',
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalButtonSecondary: {
+    backgroundColor: '#F5F5F5',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  modalButtonPrimary: {
+    backgroundColor: '#007AFF',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  modalButtonTextSecondary: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+  },
+  modalButtonTextPrimary: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
 });

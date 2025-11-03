@@ -296,7 +296,7 @@ export default function AdminDashboardScreen() {
       id: 'statistics', 
       title: 'Thống kê', 
       subtitle: 'Báo cáo & phân tích',
-      icon: '�', 
+      icon: '📈', 
       route: '/admin/statistics', 
       color: '#9C27B0',
       count: 0,
@@ -458,9 +458,9 @@ export default function AdminDashboardScreen() {
         </View>
 
         <View style={styles.headerRight}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.notificationButton}
-            onPress={() => router.push('/(tabs)/notifications' as any)}
+            onPress={() => router.push('/notifications' as any)}
           >
             <Ionicons name="notifications-outline" size={24} color="#1A1A1A" />
             {/* {unreadNotifications > 0 && (
@@ -498,6 +498,7 @@ export default function AdminDashboardScreen() {
           <View style={[styles.statCard, { borderLeftColor: '#2196F3' }]}>
             <View style={styles.statCardTop}>
               <View style={[styles.statCardIcon, { backgroundColor: '#E3F2FD' }]}>
+                <Text style={styles.statCardEmoji}>👥</Text>
               </View>
               <Text style={styles.statCardValue}>{formatNumber(stats.totalUsers)}</Text>
             </View>
@@ -507,6 +508,7 @@ export default function AdminDashboardScreen() {
           <View style={[styles.statCard, { borderLeftColor: '#FF9800' }]}>
             <View style={styles.statCardTop}>
               <View style={[styles.statCardIcon, { backgroundColor: '#FFF3E0' }]}>
+                <Text style={styles.statCardEmoji}>🗺️</Text>
               </View>
               <Text style={styles.statCardValue}>{formatNumber(stats.totalTours)}</Text>
             </View>
