@@ -20,7 +20,15 @@ if (config.env !== 'test') {
  */
 const sendEmail = async (to, subject, text) => {
   const msg = { from: config.email.from, to, subject, text };
-  await transport.sendMail(msg);
+  try {
+    logger.info(`Sending email to ${to} - subject: ${subject}`);
+    const info = await transport.sendMail(msg);
+    logger.info(`Email sent to ${to} (messageId=${info.messageId})`);
+    return info;
+  } catch (err) {
+    logger.error(`Error sending email to ${to}: ${err && err.message ? err.message : err}`);
+    throw err;
+  }
 };
 
 /**
@@ -55,9 +63,53 @@ If you did not create an account, then ignore this email.`;
   await sendEmail(to, subject, text);
 };
 
+/**
+ * Send booking confirmation email
+ * @param {string} to
+ * @param {Object} bookingData
+ * @returns {Promise}
+ */
+const sendBookingConfirmationEmail = async (to, bookingData) => {
+  const subject = '🎉 Xác nhận đặt tour thành công - Travel App';
+  const text = `Xin chào ${bookingData.userName || ''},\n\nCảm ơn bạn đã đặt tour với chúng tôi!\n\nMã đặt tour: ${bookingData.bookingId}\nTour: ${bookingData.tourName}\nNgày khởi hành: ${bookingData.startDate || ''}\nSố người: ${bookingData.numberOfPeople || ''}\nTổng tiền: ${bookingData.totalPrice || ''}\n\nTrân trọng,\nTravel App Team`;
+  return sendEmail(to, subject, text);
+};
+
+/**
+ * Send booking status update email
+ * @param {string} to
+ * @param {Object} bookingData
+ * @param {string} status - 'confirmed', 'cancelled', 'completed'
+ * @returns {Promise}
+ */
+const sendBookingStatusUpdateEmail = async (to, bookingData, status) => {
+  let subject = '';
+  let text = '';
+  switch (status) {
+    case 'confirmed':
+      subject = '✅ Booking của bạn đã được xác nhận - Travel App';
+      text = `Xin chào ${bookingData.userName || ''},\n\nBooking ${bookingData.bookingId} của bạn đã được xác nhận.\n\nTrân trọng,\nTravel App Team`;
+      break;
+    case 'cancelled':
+      subject = '❌ Thông báo hủy booking - Travel App';
+      text = `Xin chào ${bookingData.userName || ''},\n\nBooking ${bookingData.bookingId} đã bị hủy.\n\nTrân trọng,\nTravel App Team`;
+      break;
+    case 'completed':
+      subject = '🏆 Cảm ơn bạn đã sử dụng dịch vụ - Travel App';
+      text = `Xin chào ${bookingData.userName || ''},\n\nChuyến đi của bạn đã hoàn thành. Cảm ơn bạn!\n\nTrân trọng,\nTravel App Team`;
+      break;
+    default:
+      subject = '📬 Cập nhật booking - Travel App';
+      text = `Xin chào ${bookingData.userName || ''},\n\nCó cập nhật cho booking ${bookingData.bookingId}.\n\nTrân trọng,\nTravel App Team`;
+  }
+  return sendEmail(to, subject, text);
+};
+
 module.exports = {
   transport,
   sendEmail,
   sendResetPasswordEmail,
   sendVerificationEmail,
+  sendBookingConfirmationEmail,
+  sendBookingStatusUpdateEmail,
 };

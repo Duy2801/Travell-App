@@ -2,6 +2,7 @@ const httpStatus = require('http-status');
 const { Booking, User, Tour } = require('../models');
 const ApiError = require('../utils/ApiError');
 const notificationService = require('./notification.service');
+const emailService = require('./email.service');
 
 /**
  * Create a booking
@@ -30,6 +31,26 @@ const createBooking = async (userId, bookingBody) => {
     console.error('Error sending booking creation notification:', error);
   }
   
+  // Send confirmation email (non-blocking for booking)
+  try {
+    const user = populatedBooking.userId;
+    const tour = populatedBooking.tourId;
+    const hotel = populatedBooking.hotelId;
+    await emailService.sendBookingConfirmationEmail(user.email, {
+      userName: user.name,
+      bookingId: populatedBooking._id.toString(),
+      tourName: tour?.name || 'Tour',
+      startDate: populatedBooking.startDate ? new Date(populatedBooking.startDate).toLocaleDateString('vi-VN') : '',
+      numberOfPeople: populatedBooking.numberOfPeople,
+      hotelName: hotel?.name || '',
+      totalPrice: populatedBooking.totalPrice,
+      status: populatedBooking.status,
+      paymentStatus: populatedBooking.paymentStatus,
+    });
+  } catch (error) {
+    console.error('Error sending booking confirmation email:', error);
+  }
+
   return populatedBooking;
 };
 
@@ -233,6 +254,21 @@ const confirmBooking = async (bookingId) => {
     // Don't fail the booking confirmation if notification fails
   }
   
+  // Send confirmation email
+  try {
+    const user = booking.userId;
+    const tour = booking.tourId;
+    await emailService.sendBookingStatusUpdateEmail(user.email, {
+      userName: user.name,
+      bookingId: booking._id.toString(),
+      tourName: tour?.name || 'Tour',
+      startDate: booking.startDate ? new Date(booking.startDate).toLocaleDateString('vi-VN') : '',
+      numberOfPeople: booking.numberOfPeople,
+    }, 'confirmed');
+  } catch (err) {
+    console.error('Error sending confirmation email:', err);
+  }
+
   return booking;
 };
 
