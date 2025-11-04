@@ -71,7 +71,29 @@ If you did not create an account, then ignore this email.`;
  */
 const sendBookingConfirmationEmail = async (to, bookingData) => {
   const subject = '🎉 Xác nhận đặt tour thành công - Travel App';
-  const text = `Xin chào ${bookingData.userName || ''},\n\nCảm ơn bạn đã đặt tour với chúng tôi!\n\nMã đặt tour: ${bookingData.bookingId}\nTour: ${bookingData.tourName}\nNgày khởi hành: ${bookingData.startDate || ''}\nSố người: ${bookingData.numberOfPeople || ''}\nTổng tiền: ${bookingData.totalPrice || ''}\n\nTrân trọng,\nTravel App Team`;
+  const text = `Xin chào ${bookingData.userName || 'Khách hàng'},
+
+Booking của bạn đã được XÁC NHẬN!
+
+📋 THÔNG TIN ĐÂT TOUR:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Mã đặt tour: ${bookingData.bookingId}
+Tour: ${bookingData.tourName}
+Ngày khởi hành: ${bookingData.startDate || ''}
+Số người: ${bookingData.numberOfPeople || ''} người
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎉 Chúc mừng! Chuyến đi của bạn đã được xác nhận.
+
+Vui lòng chuẩn bị:
+• CMND/CCCD bản gốc
+• Giấy tờ cần thiết cho chuyến đi
+• Liên hệ nếu có thắc mắc: support@travelapp.com
+
+Chúc bạn có một chuyến đi tuyệt vời!
+
+Trân trọng,
+Travel App Team`;
   return sendEmail(to, subject, text);
 };
 
@@ -88,19 +110,84 @@ const sendBookingStatusUpdateEmail = async (to, bookingData, status) => {
   switch (status) {
     case 'confirmed':
       subject = '✅ Booking của bạn đã được xác nhận - Travel App';
-      text = `Xin chào ${bookingData.userName || ''},\n\nBooking ${bookingData.bookingId} của bạn đã được xác nhận.\n\nTrân trọng,\nTravel App Team`;
+      text = `Xin chào ${bookingData.userName || 'Khách hàng'},
+
+Booking của bạn đã được XÁC NHẬN!
+
+📋 THÔNG TIN ĐÂT TOUR:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Mã đặt tour: ${bookingData.bookingId}
+Tour: ${bookingData.tourName}
+Ngày khởi hành: ${bookingData.startDate || ''}
+Số người: ${bookingData.numberOfPeople || ''} người
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎉 Chúc mừng! Chuyến đi của bạn đã được xác nhận.
+
+Vui lòng chuẩn bị:
+• CMND/CCCD bản gốc
+• Giấy tờ cần thiết cho chuyến đi
+• Liên hệ nếu có thắc mắc: support@travelapp.com
+
+Chúc bạn có một chuyến đi tuyệt vời!
+
+Trân trọng,
+Travel App Team`;
       break;
     case 'cancelled':
       subject = '❌ Thông báo hủy booking - Travel App';
-      text = `Xin chào ${bookingData.userName || ''},\n\nBooking ${bookingData.bookingId} đã bị hủy.\n\nTrân trọng,\nTravel App Team`;
+      text = `Xin chào ${bookingData.userName || 'Khách hàng'},
+
+Booking của bạn đã bị HỦY.
+
+📋 THÔNG TIN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Mã đặt tour: ${bookingData.bookingId}
+Tour: ${bookingData.tourName}
+Lý do: ${bookingData.cancelReason || 'Theo yêu cầu'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ:
+📧 Email: support@travelapp.com
+📞 Hotline: 1900 xxxx
+
+Rất tiếc vì sự bất tiện này. Mong được phục vụ bạn trong tương lai!
+
+Trân trọng,
+Travel App Team`;
       break;
     case 'completed':
       subject = '🏆 Cảm ơn bạn đã sử dụng dịch vụ - Travel App';
-      text = `Xin chào ${bookingData.userName || ''},\n\nChuyến đi của bạn đã hoàn thành. Cảm ơn bạn!\n\nTrân trọng,\nTravel App Team`;
+      text = `Xin chào ${bookingData.userName || 'Khách hàng'},
+
+Chuyến đi của bạn đã hoàn thành!
+
+📋 THÔNG TIN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Mã đặt tour: ${bookingData.bookingId}
+Tour: ${bookingData.tourName}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi!
+
+⭐ Vui lòng dành chút thời gian đánh giá trải nghiệm của bạn tại ứng dụng.
+Ý kiến của bạn giúp chúng tôi cải thiện dịch vụ tốt hơn.
+
+Hẹn gặp lại bạn trong những chuyến đi tiếp theo!
+
+Trân trọng,
+Travel App Team`;
       break;
     default:
       subject = '📬 Cập nhật booking - Travel App';
-      text = `Xin chào ${bookingData.userName || ''},\n\nCó cập nhật cho booking ${bookingData.bookingId}.\n\nTrân trọng,\nTravel App Team`;
+      text = `Xin chào ${bookingData.userName || 'Khách hàng'},
+
+Có cập nhật mới cho booking ${bookingData.bookingId} của bạn.
+
+Vui lòng kiểm tra trong ứng dụng để biết thêm chi tiết.
+
+Trân trọng,
+Travel App Team`;
   }
   return sendEmail(to, subject, text);
 };

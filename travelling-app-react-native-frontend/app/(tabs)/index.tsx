@@ -12,6 +12,7 @@ import {
   Dimensions,
   Modal,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useRouter, useFocusEffect } from "expo-router";
 import { getTours, Tour } from "../../services/tourService";
@@ -94,13 +95,15 @@ export default function HomeScreen() {
     React.useCallback(() => {
       const reloadUserData = async () => {
         try {
-          console.log("Reloading user data on focus...");
           const userData = await getCurrentUser();
-          console.log("Updated user data:", userData);
           setUser(userData);
-          await loadUnreadNotifications();
+          if (userData) {
+            await loadUnreadNotifications();
+          }
         } catch (error) {
           console.error("Error reloading user data:", error);
+          setUser(null);
+          setUnreadNotifications(0);
         }
       };
 
@@ -112,12 +115,10 @@ export default function HomeScreen() {
     loadDataByCategory();
   }, [selectedCategory, sortBy]);
 
-  // Auto-slide banner
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => {
         const nextSlide = (prev + 1) % bannerSlides.length;
-        // Scroll to next slide
         if (slideScrollRef.current) {
           slideScrollRef.current.scrollTo({
             x: nextSlide * width,
@@ -126,7 +127,7 @@ export default function HomeScreen() {
         }
         return nextSlide;
       });
-    }, 3500); // Change slide every 3.5 seconds
+    }, 2000); // Change slide every 2 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -140,8 +141,10 @@ export default function HomeScreen() {
       // Load initial tours
       await loadDataByCategory();
 
-      // Load unread notifications count
-      await loadUnreadNotifications();
+      // Load unread notifications count chỉ khi đã đăng nhập
+      if (userData) {
+        await loadUnreadNotifications();
+      }
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
@@ -155,6 +158,8 @@ export default function HomeScreen() {
       setUnreadNotifications(count);
     } catch (error) {
       console.error("Error loading unread notifications:", error);
+      // Không hiển thị lỗi cho người dùng, chỉ log
+      setUnreadNotifications(0);
     }
   };
 
@@ -172,7 +177,7 @@ export default function HomeScreen() {
         params.sortBy = "createdAt:desc";
       } else if (selectedCategory === "Tiết kiệm") {
         // Budget friendly: Tours <= 3,000,000 VND (Hạ Long 2.5tr, Vũng Tàu 1.8tr)
-        params.maxPrice = 3000000;
+        // Không gửi maxPrice lên server, sẽ lọc ở client
         params.sortBy = "pricePerPerson:asc";
       } else if (selectedCategory === "Núi non") {
         // Mountains: Sapa (Lào Cai) - vùng núi
@@ -180,8 +185,17 @@ export default function HomeScreen() {
       }
 
       const toursData = await getTours(params);
-      setTours(toursData.results);
-      setFilteredTours(toursData.results);
+      
+      // Lọc theo giá ở phía client nếu là category "Tiết kiệm"
+      let filteredResults = toursData.results;
+      if (selectedCategory === "Tiết kiệm") {
+        filteredResults = toursData.results.filter(
+          (tour: any) => tour.pricePerPerson <= 3000000
+        );
+      }
+      
+      setTours(filteredResults);
+      setFilteredTours(filteredResults);
     } catch (error) {
       console.error("Error loading tours by category:", error);
     }
@@ -212,11 +226,22 @@ export default function HomeScreen() {
         sortBy,
       };
 
-      if (minPrice) params.minPrice = parseInt(minPrice);
-      if (maxPrice) params.maxPrice = parseInt(maxPrice);
-
+      // Không gửi minPrice và maxPrice lên server, sẽ lọc ở client
       const toursData = await getTours(params);
-      setTours(toursData.results);
+      
+      // Lọc theo giá ở phía client
+      let filteredResults = toursData.results;
+      
+      if (minPrice || maxPrice) {
+        filteredResults = toursData.results.filter((tour: any) => {
+          const price = tour.pricePerPerson;
+          const min = minPrice ? parseInt(minPrice) : 0;
+          const max = maxPrice ? parseInt(maxPrice) : Infinity;
+          return price >= min && price <= max;
+        });
+      }
+      
+      setTours(filteredResults);
     } catch (error) {
       console.error("Error applying filters:", error);
     } finally {
@@ -236,7 +261,7 @@ export default function HomeScreen() {
   const onRefresh = async () => {
     setRefreshing(true);
     await loadData();
-    await loadUnreadNotifications();
+    // loadUnreadNotifications đã được gọi trong loadData nếu user đã đăng nhập
     setRefreshing(false);
   };
 
@@ -304,15 +329,15 @@ export default function HomeScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
+      <SafeAreaView style={styles.loadingContainer} edges={['top', 'bottom']} mode="padding">
         <ActivityIndicator size="large" color="#2196F3" />
         <Text style={styles.loadingText}>Đang tải...</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']} mode="padding">
       <StatusBar style="dark" />
 
       {/* Header */}
@@ -333,18 +358,20 @@ export default function HomeScreen() {
               </Text>
             </View>
           </View>
-          <TouchableOpacity
-            style={styles.notificationButton}
-            onPress={() => router.push("/(tabs)/notifications" as any)}>
-            <Ionicons name="notifications-outline" size={24} color="#1A1A1A" />
-            {unreadNotifications > 0 && (
-              <View style={styles.notificationBadge}>
-                <Text style={styles.notificationBadgeText}>
-                  {unreadNotifications > 99 ? "99+" : unreadNotifications}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
+          {user && (
+            <TouchableOpacity
+              style={styles.notificationButton}
+              onPress={() => router.push("/(tabs)/notifications" as any)}>
+              <Ionicons name="notifications-outline" size={24} color="#1A1A1A" />
+              {unreadNotifications > 0 && (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationBadgeText}>
+                    {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -1045,7 +1072,7 @@ export default function HomeScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -1070,7 +1097,6 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 30,
     paddingBottom: 16,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
@@ -1219,7 +1245,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   bannerSlide: {
-    width: width - 32,
+    width: width,
     height: 180,
     position: "relative",
   },

@@ -10,6 +10,7 @@ import {
   Modal,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -42,16 +43,24 @@ export default function NotificationsScreen() {
 
   useEffect(() => {
     loadUser();
-    loadNotifications();
-    loadUnreadCount();
-  }, [selectedFilter]);
+  }, []);
+
+  useEffect(() => {
+    // Chỉ load thông báo khi đã đăng nhập
+    if (user) {
+      loadNotifications();
+      loadUnreadCount();
+    }
+  }, [selectedFilter, user]);
 
   const loadUser = async () => {
     try {
       const userData = await getCurrentUser();
       setUser(userData);
+      setIsLoading(false);
     } catch (error) {
       console.error('Error loading user:', error);
+      setIsLoading(false);
     }
   };
 
@@ -164,13 +173,35 @@ export default function NotificationsScreen() {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#2196F3" />
-        <Text style={styles.loadingText}>Đang tải thông báo...</Text>
+        <Text style={styles.loadingText}>Đang tải...</Text>
       </View>
     );
   }
 
+  // Hiển thị màn hình đăng nhập nếu chưa đăng nhập
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <StatusBar style="dark" />
+        <View style={styles.loginPromptContainer}>
+          <Ionicons name="notifications-off-outline" size={80} color="#CCCCCC" />
+          <Text style={styles.loginPromptTitle}>Chưa đăng nhập</Text>
+          <Text style={styles.loginPromptSubtitle}>
+            Vui lòng đăng nhập để xem thông báo của bạn
+          </Text>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => router.push('/login')}
+          >
+            <Text style={styles.loginButtonText}>Đăng nhập ngay</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar style="dark" />
 
       {/* Header */}
@@ -178,11 +209,11 @@ export default function NotificationsScreen() {
         <View style={styles.headerFull}>
           <View style={styles.headerTop}>
             <Text style={styles.headerTitle}>Thông báo</Text>
-            {unreadCount > 0 && (
+            {/* {unreadCount > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{unreadCount}</Text>
               </View>
-            )}
+            )} */}
           </View>
           <Text style={styles.headerSubtitle}>
             Cập nhật thông tin mới nhất về tour của bạn
@@ -370,7 +401,7 @@ export default function NotificationsScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -669,5 +700,41 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#FFFFFF',
+  },
+  loginPromptContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  loginPromptTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginTop: 24,
+    marginBottom: 12,
+  },
+  loginPromptSubtitle: {
+    fontSize: 15,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 32,
+    lineHeight: 22,
+  },
+  loginButton: {
+    backgroundColor: '#2196F3',
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 12,
+    shadowColor: '#2196F3',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  loginButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

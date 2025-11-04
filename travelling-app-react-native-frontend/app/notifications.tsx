@@ -42,16 +42,26 @@ export default function NotificationsScreen() {
 
   useEffect(() => {
     loadUser();
-    loadNotifications();
-    loadUnreadCount();
-  }, [selectedFilter]);
+  }, []);
+
+  useEffect(() => {
+    // Chỉ load thông báo khi đã có user
+    if (user) {
+      loadNotifications();
+      loadUnreadCount();
+    }
+  }, [selectedFilter, user]);
 
   const loadUser = async () => {
     try {
       const userData = await getCurrentUser();
       setUser(userData);
+      setIsLoading(false);
     } catch (error) {
       console.error('Error loading user:', error);
+      setIsLoading(false);
+      // Redirect về trang chủ nếu không có user
+      router.replace('/');
     }
   };
 
@@ -182,7 +192,7 @@ export default function NotificationsScreen() {
       <StatusBar style="dark" />
 
       {/* Header */}
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
           <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
         </TouchableOpacity>
@@ -197,7 +207,7 @@ export default function NotificationsScreen() {
           </View>
         </View>
         <View style={styles.backButton} />
-      </View>
+      </View> */}
 
       {/* Filter Tabs */}
       <View style={styles.filterContainer}>

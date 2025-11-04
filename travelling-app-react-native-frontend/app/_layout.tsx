@@ -1,12 +1,32 @@
 import { Stack } from 'expo-router';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useEffect } from 'react';
+import { initDatabase } from '../services/database';
+import { CacheService } from '../services/cacheService';
 
 export default function RootLayout() {
+  // Khởi tạo database khi app start
+  useEffect(() => {
+    const setupDatabase = async () => {
+      try {
+        await initDatabase();
+        // Clear stale cache khi app start
+        await CacheService.clearStaleCache();
+      } catch (error) {
+        console.error('Error setting up database:', error);
+      }
+    };
+
+    setupDatabase();
+  }, []);
+
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
+    <SafeAreaProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
       <Stack.Screen 
         name="index" 
         options={{
@@ -69,5 +89,6 @@ export default function RootLayout() {
         }}
       />
     </Stack>
+    </SafeAreaProvider>
   );
 }

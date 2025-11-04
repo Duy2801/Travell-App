@@ -12,6 +12,7 @@ import {
   Dimensions,
   Animated,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -296,7 +297,7 @@ export default function AdminDashboardScreen() {
       id: 'statistics', 
       title: 'Thống kê', 
       subtitle: 'Báo cáo & phân tích',
-      icon: '📈', 
+      icon: '�', 
       route: '/admin/statistics', 
       color: '#9C27B0',
       count: 0,
@@ -339,7 +340,7 @@ export default function AdminDashboardScreen() {
   if (!user || user.role !== 'admin') return null;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar style="dark" />
       
       <Toast 
@@ -498,7 +499,6 @@ export default function AdminDashboardScreen() {
           <View style={[styles.statCard, { borderLeftColor: '#2196F3' }]}>
             <View style={styles.statCardTop}>
               <View style={[styles.statCardIcon, { backgroundColor: '#E3F2FD' }]}>
-                <Text style={styles.statCardEmoji}>👥</Text>
               </View>
               <Text style={styles.statCardValue}>{formatNumber(stats.totalUsers)}</Text>
             </View>
@@ -508,7 +508,6 @@ export default function AdminDashboardScreen() {
           <View style={[styles.statCard, { borderLeftColor: '#FF9800' }]}>
             <View style={styles.statCardTop}>
               <View style={[styles.statCardIcon, { backgroundColor: '#FFF3E0' }]}>
-                <Text style={styles.statCardEmoji}>🗺️</Text>
               </View>
               <Text style={styles.statCardValue}>{formatNumber(stats.totalTours)}</Text>
             </View>
@@ -604,7 +603,7 @@ export default function AdminDashboardScreen() {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
