@@ -156,7 +156,7 @@ export default function BookingsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <>
       <StatusBar style="dark" />
 
       {/* Header */}
@@ -336,7 +336,7 @@ export default function BookingsScreen() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </>
   );
 }
 
@@ -357,15 +357,9 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   header: {
-    backgroundColor: '#FFFFFF',
     paddingTop: 30,
     paddingBottom: 20,
     paddingHorizontal: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   headerTitle: {
     fontSize: 28,
@@ -375,7 +369,6 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#666',
   },
   tabsContainer: {
     flexDirection: 'row',

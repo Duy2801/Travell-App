@@ -11,6 +11,7 @@ import {
   Dimensions,
   Share,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { getTourById, getTours, Tour } from '../services/tourService';
@@ -21,6 +22,7 @@ export default function TourDetailScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const tourId = params.id as string;
+  const insets = useSafeAreaInsets();
 
   const [tour, setTour] = useState<Tour | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -172,13 +174,13 @@ export default function TourDetailScreen() {
         )}
 
         {/* Back Button */}
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity style={[styles.backButton, { top: insets.top + 10 }]} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
 
         {/* Share Button */}
-        <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
-          <Text style={styles.shareButtonText}>⤴</Text>
+        <TouchableOpacity style={[styles.shareButton, { top: insets.top + 10 }]} onPress={handleShare}>
+          <Text style={styles.shareButtonText}>⤤</Text>
         </TouchableOpacity>
       </View>
 
@@ -414,7 +416,6 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 50,
     left: 16,
     width: 40,
     height: 40,
@@ -430,7 +431,6 @@ const styles = StyleSheet.create({
   },
   shareButton: {
     position: 'absolute',
-    top: 50,
     right: 16,
     width: 40,
     height: 40,

@@ -11,6 +11,7 @@ import {
   Alert,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { getServices, Service, ServiceType, getServiceTypeLabel, getServiceTypeIcon } from '../../services/serviceService';
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -105,7 +106,7 @@ export default function ServicesScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <>
       <StatusBar style="dark" />
 
       {/* Header */}
@@ -326,12 +327,12 @@ export default function ServicesScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
@@ -347,15 +348,8 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   header: {
-    backgroundColor: '#FFFFFF',
-    paddingTop: 30,
     paddingBottom: 20,
     paddingHorizontal: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   headerTitle: {
     fontSize: 28,
@@ -365,7 +359,7 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#666',
+    color: '#999',
     marginBottom: 20,
   },
   searchContainer: {

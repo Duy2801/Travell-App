@@ -3,6 +3,7 @@ import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useState, useEffect, useCallback } from 'react';
 import { getCurrentUser } from '../../services/authService';
 import { AppState } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -56,23 +57,18 @@ export default function TabLayout() {
   }, [segments, checkAuth]);
 
   return (
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }} edges={['bottom', 'top']}>
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#2196F3',
         tabBarInactiveTintColor: '#999999',
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 1,
-          borderTopColor: '#E0E0E0',
+          backgroundColor: '#F8F9FA',
           paddingBottom: 8,
           paddingTop: 8,
           height: 65,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
-          elevation: 8,
         },
         tabBarLabelStyle: {
           fontSize: 10,
@@ -152,5 +148,7 @@ export default function TabLayout() {
         }} 
       />
     </Tabs>
+    </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

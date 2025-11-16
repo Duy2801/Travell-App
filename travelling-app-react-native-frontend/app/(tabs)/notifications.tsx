@@ -201,25 +201,10 @@ export default function NotificationsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <>
       <StatusBar style="dark" />
 
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerFull}>
-          <View style={styles.headerTop}>
-            <Text style={styles.headerTitle}>Thông báo</Text>
-            {/* {unreadCount > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{unreadCount}</Text>
-              </View>
-            )} */}
-          </View>
-          <Text style={styles.headerSubtitle}>
-            Cập nhật thông tin mới nhất về tour của bạn
-          </Text>
-        </View>
-      </View>
 
       {/* Filter Tabs */}
       <View style={styles.filterContainer}>
@@ -401,14 +386,14 @@ export default function NotificationsScreen() {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FA',
+    backgroundColor: "#F8F9FA",
   },
   loadingContainer: {
     flex: 1,
@@ -422,12 +407,10 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   header: {
-    backgroundColor: '#FFFFFF',
-    paddingTop: Platform.OS === 'ios' ? 50 : 20,
+    paddingTop: Platform.OS === 'ios' ? 0 : 20,
     paddingBottom: 16,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
   },
   backButton: {
     width: 40,
@@ -476,7 +459,6 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 8,
     gap: 12,
-    backgroundColor: '#FFFFFF',
   },
   filterTab: {
     flex: 1,
@@ -503,7 +485,6 @@ const styles = StyleSheet.create({
   actionsContainer: {
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
